@@ -21,8 +21,12 @@ mysql:
   log-zap: false
 
 mongodb:
+  username: admin
+  password: ""
   path: 127.0.0.1
   port: "27017"
+  database: jsonwizard
+  log-zap: false
 
 redis:
   db: 0
@@ -43,3 +47,14 @@ zap:
 local:
   path: uploads/file
   store-path: uploads/file
+
+captcha:
+  key-long: 6
+  img-width: 240
+  img-height: 80
+
+jwt:
+  signing-key: 'jsonwizard'
+  expires-time: 7d
+  buffer-time: 1d
+  Issuer: "jsonwizard"

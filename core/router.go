@@ -9,6 +9,7 @@ import (
 func Routers() *gin.Engine {
 	r := gin.Default()
 	r.StaticFS(global.JW_CONFIG.Local.Path, http.Dir(global.JW_CONFIG.Local.StorePath)) // 为用户头像和文件提供静态地址
+	r.Group("/api/v1")
 	PublicGroup := r.Group("")
 	{
 		// 健康监测

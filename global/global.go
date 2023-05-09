@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
+	"golang.org/x/sync/singleflight"
 	"gorm.io/gorm"
-	"sync"
 )
 
 type jwDb struct {
@@ -16,13 +16,12 @@ type jwDb struct {
 }
 
 var (
-	JW_DB     jwDb
-	JW_CONFIG config.Server
-	JW_VP     *viper.Viper
-	JW_LOG    *zap.Logger
-	JW_REDIS  *redis.Client
-	
-	lock sync.RWMutex
+	JW_DB                  jwDb
+	JW_CONFIG              config.Server
+	JW_VP                  *viper.Viper
+	JW_LOG                 *zap.Logger
+	JW_REDIS               *redis.Client
+	JW_Concurrency_Control = &singleflight.Group{}
 )
 
 const (

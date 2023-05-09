@@ -54,7 +54,11 @@ func GormMysql() *gorm.DB {
 
 //初始化mongodb连接
 func InitMongoDB() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	m := global.JW_CONFIG.MongoDB
+	if m.Dbname == "" {
+		return nil
+	}
+	client, err := mongo.NewClient(options.Client().ApplyURI(m.Dsn()))
 	if err != nil {
 		fmt.Println("newclient mongodb error: ", err)
 		return nil
@@ -77,7 +81,12 @@ func InitMongoDB() *mongo.Client {
 
 func RegisterTables(db *gorm.DB) {
 	err := db.AutoMigrate(
-		model.Application{},
+		model.JW_Application{},
+		model.JW_Module{},
+		model.JW_Auth{},
+		model.JW_Data{},
+		model.JW_Param{},
+		model.JW_User{},
 	)
 	if err != nil {
 		global.JW_LOG.Error("register table failed", zap.Error(err))

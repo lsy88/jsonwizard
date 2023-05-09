@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/lsy88/jsonwizard/core"
 	"github.com/lsy88/jsonwizard/global"
 )
@@ -16,6 +15,5 @@ func main() {
 		db, _ := global.JW_DB.DB.DB()
 		defer db.Close()
 	}
-	fmt.Println("----")
 	core.RunWindowsServer()
 }
