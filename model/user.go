@@ -1,9 +1,13 @@
 package model
 
-import "time"
+import (
+	"github.com/lsy88/jsonwizard/global"
+	"time"
+)
 
 //用户表
 type JW_User struct {
+	global.JW_Model
 	EmployeeId  string    `json:"employee_id" gorm:"type:varchar(64) NOT NULL; COMMENT:'工号'"`
 	NickName    string    `json:"nick_name" gorm:"type:varchar(64) DEFAULT NULL; index:nickname; COMMENT:'昵称(自动生成)'"`
 	RealName    string    `json:"real_name" gorm:"type:varchar(64) DEFAULT NULL; COMMENT '真实姓名'"`
@@ -20,4 +24,8 @@ type JW_User struct {
 	Birthday    time.Time `json:"birthday" gorm:"type:datetime DEFAULT NULL; COMMENT:'生日'"`
 	Gender      int       `json:"gender" gorm:"type:tinyint(3) unsigned NOT NULL DEFAULT '0'; COMMENT:'性别：1：男，2：女'"`
 	SoftDelete  int       `json:"soft_delete" gorm:"type:tinyint(3) unsigned NOT NULL DEFAULT '0'; index:username; index:nickname; index:username_2; index:phone_number; index:phone_number_2; COMMENT:'未删除/已删除：0/1'"`
+}
+
+func (JW_User) TableName() string {
+	return "jw_user"
 }

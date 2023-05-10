@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/lsy88/jsonwizard/global"
 	"github.com/lsy88/jsonwizard/model/request"
+	"time"
 )
 
 var (
@@ -25,7 +26,22 @@ func NewJwt() *JWT {
 	}
 }
 
-//CreateToken 生成token
+func (j *JWT) CreateClaims(baseClaims request.BaseClaims) request.CustomClaims {
+	bf, _ := ParseDuration(global.JW_CONFIG.JWT.BufferTime)
+	ep, _ := ParseDuration(global.JW_CONFIG.JWT.ExpiresTime)
+	claims := request.CustomClaims{
+		BaseClaims: baseClaims,
+		BufferTime: int64(bf / time.Second), // 缓冲时间1天 缓冲时间内会获得新的token刷新令牌 此时一个用户会存在两个有效令牌 但是前端只留一个 另一个会丢失
+		StandardClaims: jwt.StandardClaims{
+			NotBefore: time.Now().Unix() - 1000,    // 签名生效时间
+			ExpiresAt: time.Now().Add(ep).Unix(),   // 过期时间 7天  配置文件
+			Issuer:    global.JW_CONFIG.JWT.Issuer, // 签名的发行者
+		},
+	}
+	return claims
+}
+
+//CreateToken 根据claims生成token
 func (j *JWT) CreateToken(claims request.CustomClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(j.SigningKey)

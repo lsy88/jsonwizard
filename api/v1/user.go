@@ -1,9 +1,72 @@
 package v1
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/lsy88/jsonwizard/global"
+	"github.com/lsy88/jsonwizard/global/response"
+	"github.com/lsy88/jsonwizard/model"
+	"github.com/lsy88/jsonwizard/model/request"
+	systemresp "github.com/lsy88/jsonwizard/model/response"
+	"github.com/lsy88/jsonwizard/utils"
+	"go.uber.org/zap"
+)
 
 type BaseApi struct{}
 
 func (b *BaseApi) Login(c *gin.Context) {
+	var user request.LoginUserRequest
+	if err := c.ShouldBind(&user); err != nil {
+		response.FailWithDetailed("参数绑定错误", err.Error(), c)
+		return
+	}
+	err := utils.Verify(&user, utils.LoginVerify)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if store.Verify(user.CaptchaId, user.Captcha, true) {
+		u := model.JW_User{
+			UserName: user.Username,
+			Password: user.Password,
+		}
+		user, err := userService.Login(&u)
+		if err != nil {
+			global.JW_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
+			response.FailWithMessage("用户名不存在或者密码错误", c)
+			return
+		}
+		b.TokenNext(c, *user)
+		return
+	}
+	response.FailWithMessage("验证码错误", c)
+}
+
+//登录合法之后签发token
+func (b *BaseApi) TokenNext(c *gin.Context, user model.JW_User) {
+	j := &utils.JWT{SigningKey: []byte(global.JW_CONFIG.JWT.SigningKey)} // 唯一签名
+	claims := j.CreateClaims(request.BaseClaims{
+		ID:       user.ID,
+		Username: user.UserName,
+		RealName: user.RealName,
+		UserType: user.Type,
+	})
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		global.JW_LOG.Error("获取token失败!", zap.Error(err))
+		response.FailWithMessage("获取token失败", c)
+		return
+	}
+	//单点登录
+	if !global.JW_CONFIG.System.UseMultipoint {
+		response.OkWithDetailed(systemresp.UserLoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000, //返回过期时间
+		}, "登录成功", c)
+	}
+	
+}
+
+func (b *BaseApi) Register(c *gin.Context) {
 
 }

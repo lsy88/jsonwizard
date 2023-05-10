@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lsy88/jsonwizard/global"
 	"github.com/lsy88/jsonwizard/global/response"
+	"github.com/lsy88/jsonwizard/model/system"
+	"github.com/lsy88/jsonwizard/service"
 	"github.com/lsy88/jsonwizard/utils"
 	"go.uber.org/zap"
 	"strconv"
@@ -12,11 +14,16 @@ import (
 	"time"
 )
 
+var (
+	jwtService  = service.ServiceGroupApp.SystemServiceGroup.JwtService
+	userService = service.ServiceGroupApp.UserService
+)
+
 // JWTAuth
 // 我们这里jwt鉴权取头部信息 x-token 登录时回返回token信息
-//这里前端需要把token存储到cookie或者本地localStorage中
-//不过需要跟后端协商过期时间
-//可以约定刷新令牌或者重新登录
+// 这里前端需要把token存储到cookie或者本地localStorage中
+// 不过需要跟后端协商过期时间
+// 可以约定刷新令牌或者重新登录
 func JWTAuth() gin.HandlerFunc {
 	reload := gin.H{"reload": true}
 	tokenPrefix := "Bearer"
@@ -35,11 +42,11 @@ func JWTAuth() gin.HandlerFunc {
 			return
 		}
 		token := parts[1]
-		//if jwtService.IsBlacklist(token) {
-		//	response.FailWithDetailed(gin.H{"reload": true}, "您的帐户异地登陆或令牌失效", c)
-		//	c.Abort()
-		//	return
-		//}
+		if jwtService.IsBlacklist(token) {
+			response.FailWithDetailed(gin.H{"reload": true}, "您的帐户异地登陆或令牌失效", c)
+			c.Abort()
+			return
+		}
 		j := utils.NewJwt()
 		// parts[1]是获取到的token，我们使用之前定义好的解析JWT的函数来解析它获取claims
 		claims, err := j.ParseToken(token)
@@ -49,7 +56,7 @@ func JWTAuth() gin.HandlerFunc {
 			return
 		}
 		//校验ID是否有效
-		if err, _ = userService.FindUserById(claims.ID); err != nil {
+		if err = userService.FindUserById(claims.ID); err != nil {
 			response.FailWithDetailed(gin.H{"reload": true}, err.Error(), c)
 			c.Abort()
 			return

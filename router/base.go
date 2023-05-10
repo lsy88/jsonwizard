@@ -7,7 +7,7 @@ import (
 
 type BaseRouter struct{}
 
-func (u *BaseRouter) InitUserRouter(router *gin.RouterGroup) {
+func (u *BaseRouter) InitUserRouter(router *gin.RouterGroup) gin.IRoutes {
 	baseRouter := router.Group("base")
 	baseApi := v1.ApiGroupApp.BaseApi
 	{
@@ -15,4 +15,5 @@ func (u *BaseRouter) InitUserRouter(router *gin.RouterGroup) {
 		baseRouter.POST("getCaptcha", baseApi.GenCaptcha)
 		baseRouter.POST("verifyCaptcha", baseApi.VerifyCaptcha)
 	}
+	return baseRouter
 }
