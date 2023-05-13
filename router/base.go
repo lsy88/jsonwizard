@@ -12,6 +12,7 @@ func (u *BaseRouter) InitUserRouter(router *gin.RouterGroup) gin.IRoutes {
 	baseApi := v1.ApiGroupApp.BaseApi
 	{
 		baseRouter.POST("login", baseApi.Login)
+		baseRouter.POST("register", baseApi.Register)
 		baseRouter.POST("getCaptcha", baseApi.GenCaptcha)
 		baseRouter.POST("verifyCaptcha", baseApi.VerifyCaptcha)
 	}

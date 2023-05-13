@@ -16,7 +16,7 @@ type BaseApi struct{}
 func (b *BaseApi) Login(c *gin.Context) {
 	var user request.LoginUserRequest
 	if err := c.ShouldBind(&user); err != nil {
-		response.FailWithDetailed("参数绑定错误", err.Error(), c)
+		response.FailWithDetailed("参数绑定失败", err.Error(), c)
 		return
 	}
 	err := utils.Verify(&user, utils.LoginVerify)
@@ -35,14 +35,14 @@ func (b *BaseApi) Login(c *gin.Context) {
 			response.FailWithMessage("用户名不存在或者密码错误", c)
 			return
 		}
-		b.TokenNext(c, *user)
+		b.tokenNext(c, *user)
 		return
 	}
 	response.FailWithMessage("验证码错误", c)
 }
 
 //登录合法之后签发token
-func (b *BaseApi) TokenNext(c *gin.Context, user model.JW_User) {
+func (b *BaseApi) tokenNext(c *gin.Context, user model.JW_User) {
 	j := &utils.JWT{SigningKey: []byte(global.JW_CONFIG.JWT.SigningKey)} // 唯一签名
 	claims := j.CreateClaims(request.BaseClaims{
 		ID:       user.ID,
@@ -68,5 +68,42 @@ func (b *BaseApi) TokenNext(c *gin.Context, user model.JW_User) {
 }
 
 func (b *BaseApi) Register(c *gin.Context) {
-
+	var u request.RegisterUserRequest
+	if err := c.ShouldBindJSON(&u); err != nil {
+		response.FailWithDetailed("参数绑定失败", err.Error(), c)
+		return
+	}
+	err := utils.Verify(u, utils.RegisterVerify)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	user := model.JW_User{
+		JW_Model: global.JW_Model{
+			CreateGUID: utils.GenGUID(),
+		},
+		EmployeeId:  u.EmployeeId,
+		NickName:    u.NickName,
+		RealName:    u.RealName,
+		PhoneNumber: u.PhoneNumber,
+		UserName:    u.UserName,
+		Password:    u.Password,
+		Type:        u.Type,
+		Avatar:      u.Avatar,
+		WeiBo:       u.WeiBo,
+		WeChat:      u.WeChat,
+		QQ:          u.QQ,
+		Email:       u.Email,
+		Profile:     u.Profile,
+		Birthday:    u.Birthday,
+		Gender:      u.Gender,
+		SoftDelete:  0,
+	}
+	userReturn, err := userService.Register(user)
+	if err != nil {
+		global.JW_LOG.Error("注册失败!", zap.Error(err))
+		response.FailWithDetailed(userReturn, "注册失败", c)
+		return
+	}
+	response.OkWithMessage("注册成功", c)
 }

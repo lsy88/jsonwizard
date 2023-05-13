@@ -6,8 +6,12 @@ var ApiGroupApp = new(ApiGroup)
 
 type ApiGroup struct {
 	BaseApi
+	AppApi
+	ModuleApi
 }
 
 var (
-	userService = service.ServiceGroupApp.UserService
+	userService   = service.ServiceGroupApp.UserService
+	appService    = service.ServiceGroupApp.ApplicationService
+	moduleService = service.ServiceGroupApp.ModuleService
 )

@@ -18,9 +18,9 @@ var (
 	UserNotExistError = errors.New("该用户不存在")
 )
 
-func (u *UserService) FindUserById(id int) error {
+func (u *UserService) FindByID(id int) bool {
 	_, err := u.GetUserInfo(id)
-	return err
+	return err == UserNotExistError
 }
 
 func (u *UserService) Login(user *model.JW_User) (us *model.JW_User, err error) {
@@ -32,7 +32,7 @@ func (u *UserService) Login(user *model.JW_User) (us *model.JW_User, err error) 
 func (u *UserService) Register(us model.JW_User) (userInter model.JW_User, err error) {
 	var user *model.JW_User
 	//用户已存在
-	if !errors.Is(global.JW_DB.DB.Where("user_name = ? AND soft_delete = 0", us.UserName).First(&user).Error, gorm.ErrRecordNotFound) {
+	if !errors.Is(global.JW_DB.DB.Where("user_name = ? AND real_name = ? AND soft_delete = 0", us.UserName, us.RealName).First(&user).Error, gorm.ErrRecordNotFound) {
 		return userInter, UserExistError
 	}
 	us.Password = utils.MD5([]byte(us.Password))

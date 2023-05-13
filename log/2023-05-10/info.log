@@ -1,0 +1,2 @@
+[github.com/lsy88/jsonwizard]2023/05/10 - 22:28:34.538	[34minfo[0m	D:/goproject/src/jsonwizard/core/gorm.go:95	register table success
+[github.com/lsy88/jsonwizard]2023/05/10 - 22:28:34.571	[34minfo[0m	D:/goproject/src/jsonwizard/core/server.go:37	server run success on 	{"address": ":9379"}
