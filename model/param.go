@@ -13,3 +13,7 @@ type JW_Param struct {
 	AssociateUrlStop int    `json:"associate_url_stop" gorm:"column:associate_url_stop; type:tinyint(3) unsigned NOT NULL DEFAULT '0'; COMMENT:'未停用/已停用：0/1'"`
 	SoftDelete       int    `json:"soft_delete" gorm:"type:tinyint(3) unsigned NOT NULL DEFAULT '0'; index:app_id; COMMENT:'未删除/已删除：0/1'"`
 }
+
+func (JW_Param) TableName() string {
+	return "jw_param"
+}

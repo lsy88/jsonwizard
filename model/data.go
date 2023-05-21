@@ -8,3 +8,7 @@ type JW_Data struct {
 	IsStop     int    `json:"is_stop" gorm:"type:tinyint(3) unsigned NOT NULL DEFAULT '0'; COMMENT:'未停用/已停用：0/1'"`
 	SoftDelete int    `json:"soft_delete" gorm:"type:tinyint(3) unsigned NOT NULL DEFAULT '0'; index:params; COMMENT:'未删除/已删除：0/1'"`
 }
+
+func (JW_Data) TableName() string {
+	return "jw_data"
+}

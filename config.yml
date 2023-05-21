@@ -7,6 +7,7 @@ system:
   use-redis: false
   iplimit-count: 15000
   iplimit-time: 3600
+  encrypt-key: "jsonwizard@lsy88"
 
 mysql:
   path: 127.0.0.1

@@ -12,6 +12,9 @@ func (m *ModuleRouter) InitModuleRouter(router *gin.RouterGroup) gin.IRoutes {
 	moduleApi := v1.ApiGroupApp.ModuleApi
 	{
 		moduleRouter.POST("create", moduleApi.Create)
+		moduleRouter.GET("info", moduleApi.ModuleInfo)
+		moduleRouter.POST("definition", moduleApi.Modify)
+		moduleRouter.GET("statusList", moduleApi.GetStatusList)
 	}
 	return moduleRouter
 }
