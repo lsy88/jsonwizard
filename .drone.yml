@@ -1,3 +1,7 @@
-kind:pipeline
-type:docker
-name:jsonwizard
+kind: pipeline
+type: docker
+name: jsonwizard
+
+steps:
+  - name: test-drone
+    image: docker:80
